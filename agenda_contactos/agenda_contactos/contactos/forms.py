@@ -2,13 +2,12 @@ import re
 from django import forms
 from .models import Contacto
 
-# Un teléfono válido puede incluir dígitos, espacios, guiones y un signo "+"
-# al inicio, pero nunca letras.
+
 PATRON_TELEFONO = re.compile(r"^[0-9+\-\s()]+$")
 
 
 class ContactoForm(forms.ModelForm):
-    """Formulario de creación/edición de contactos con validaciones de negocio."""
+    
 
     class Meta:
         model = Contacto
@@ -37,7 +36,7 @@ class ContactoForm(forms.ModelForm):
             raise forms.ValidationError("El teléfono es obligatorio.")
         if not PATRON_TELEFONO.match(telefono):
             raise forms.ValidationError(
-                "El teléfono solo puede contener números (y opcionalmente +, - o espacios)."
+               
             )
         if not re.search(r"\d", telefono):
             raise forms.ValidationError("El teléfono debe contener al menos un número.")
