@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Contacto(models.Model):
-    """Representa un contacto de la agenda de la empresa."""
+    
 
     nombre = models.CharField(max_length=150, verbose_name="Nombre completo")
     correo = models.EmailField(max_length=254, verbose_name="Correo electrónico")
@@ -17,7 +17,7 @@ class Contacto(models.Model):
         return self.nombre
 
     def to_dict(self):
-        """Convierte el contacto en un diccionario, tal como lo espera el frontend."""
+        
         return {
             "id": self.id,
             "nombre": self.nombre,
