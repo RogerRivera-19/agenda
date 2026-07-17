@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda de Contactos</title>
+<style>
+    :root {
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --danger: #dc2626;
+        --danger-dark: #b91c1c;
+        --bg: #f4f6f9;
+        --card-bg: #ffffff;
+        --border: #e2e8f0;
+        --text: #1e293b;
+        --text-muted: #64748b;
+    }
+    * { box-sizing: border-box; }
+    body {
+        font-family: "Segoe UI", Roboto, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        margin: 0;
+        padding: 2rem 1rem;
+    }
+    .container {
+        max-width: 720px;
+        margin: 0 auto;
+    }
+    h1 {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-size: 1.8rem;
+    }
+    .card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .search-box input {
+        width: 100%;
+        padding: 0.7rem 1rem;
+        font-size: 1rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        outline: none;
+    }
+    .search-box input:focus {
+        border-color: var(--primary);
+    }
+    form .campo {
+        margin-bottom: 1rem;
+    }
+    form label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+        font-size: 0.9rem;
+    }
+    form input {
+        width: 100%;
+        padding: 0.6rem 0.8rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.95rem;
+    }
+    form input:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+    .error-msg {
+        color: var(--danger);
+        font-size: 0.82rem;
+        margin-top: 0.3rem;
+        min-height: 1.1em;
+    }
+    .acciones-form {
+        display: flex;
+        gap: 0.6rem;
+        margin-top: 0.5rem;
+    }
+    button {
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        padding: 0.6rem 1.2rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: background 0.15s ease;
+    }
+    #btn-guardar {
+        background: var(--primary);
+        color: #fff;
+    }
+    #btn-guardar:hover { background: var(--primary-dark); }
+    #btn-cancelar {
+        background: #e2e8f0;
+        color: var(--text);
+        display: none;
+    }
+    #btn-cancelar:hover { background: #cbd5e1; }
+    .form-alert {
+        background: #fef2f2;
+        color: var(--danger);
+        border: 1px solid #fecaca;
+        padding: 0.6rem 0.9rem;
+        border-radius: 8px;
+        font-size: 0.88rem;
+        margin-bottom: 1rem;
+        display: none;
+    }
+    .lista-titulo {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+    .lista-titulo h2 {
+        font-size: 1.1rem;
+        margin: 0;
+    }
+    .contador {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+    .contacto {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.85rem 0.5rem;
+        border-bottom: 1px solid var(--border);
+        gap: 1rem;
+    }
+    .contacto:last-child { border-bottom: none; }
+    .contacto-info { min-width: 0; }
+    .contacto-nombre {
+        font-weight: 600;
+        font-size: 1rem;
+    }
+    .contacto-detalle {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        word-break: break-word;
+    }
+    .contacto-acciones {
+        display: flex;
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
+    .btn-editar {
+        background: #eff6ff;
+        color: var(--primary);
+    }
+    .btn-editar:hover { background: #dbeafe; }
+    .btn-eliminar {
+        background: #fef2f2;
+        color: var(--danger);
+    }
+    .btn-eliminar:hover { background: #fee2e2; }
+    .vacio {
+        text-align: center;
+        color: var(--text-muted);
+        padding: 1.5rem 0;
+        font-size: 0.92rem;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>📇 Agenda de Contactos</h1>
+
+    <div class="card search-box">
+        <input type="text" id="input-buscar" placeholder="Buscar contacto por nombre..." autocomplete="off">
+    </div>
+
+    <div class="card">
+        <div id="form-alert" class="form-alert"></div>
+        <form id="form-contacto" novalidate>
+            <input type="hidden" id="contacto-id" value="">
+            <div class="campo">
+                <label for="input-nombre">Nombre completo</label>
+                <input type="text" id="input-nombre" name="nombre" placeholder="Ej. Juan Pérez">
+                <div class="error-msg" id="error-nombre"></div>
+            </div>
+            <div class="campo">
+                <label for="input-correo">Correo electrónico</label>
+                <input type="text" id="input-correo" name="correo" placeholder="Ej. juan@gmail.com">
+                <div class="error-msg" id="error-correo"></div>
+            </div>
+            <div class="campo">
+                <label for="input-telefono">Número telefónico</label>
+                <input type="text" id="input-telefono" name="telefono" placeholder="Ej. 0999999999">
+                <div class="error-msg" id="error-telefono"></div>
+            </div>
+            <div class="acciones-form">
+                <button type="submit" id="btn-guardar">Guardar</button>
+                <button type="button" id="btn-cancelar">Cancelar</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="lista-titulo">
+            <h2>Contactos</h2>
+            <span class="contador" id="contador-contactos"></span>
+        </div>
+        <div id="lista-contactos"></div>
+    </div>
+</div>
+
+{% csrf_token %}
+<script>
+// ---------- Utilidades ----------
+function obtenerCsrfToken() {
+    const match = document.cookie.match(/csrftoken=([^;]+)/);
+    return match ? match[1] : "";
+}
+
+const URLS = {
+    listar: "{% url 'contactos:contacto_list' %}",
+    crear: "{% url 'contactos:contacto_create' %}",
+    editar: (id) => `/api/contactos/${id}/editar/`,
+    eliminar: (id) => `/api/contactos/${id}/eliminar/`,
+};
+
+// ---------- Elementos del DOM ----------
+const form = document.getElementById("form-contacto");
+const inputId = document.getElementById("contacto-id");
+const inputNombre = document.getElementById("input-nombre");
+const inputCorreo = document.getElementById("input-correo");
+const inputTelefono = document.getElementById("input-telefono");
+const btnGuardar = document.getElementById("btn-guardar");
+const btnCancelar = document.getElementById("btn-cancelar");
+const formAlert = document.getElementById("form-alert");
+const inputBuscar = document.getElementById("input-buscar");
+const listaContactos = document.getElementById("lista-contactos");
+const contador = document.getElementById("contador-contactos");
+
+const erroresCampos = {
+    nombre: document.getElementById("error-nombre"),
+    correo: document.getElementById("error-correo"),
+    telefono: document.getElementById("error-telefono"),
+};
+
+let modoEdicion = false;
+
+// ---------- Renderizado de la lista ----------
+function escapeHtml(texto) {
+    const div = document.createElement("div");
+    div.textContent = texto;
+    return div.innerHTML;
+}
+
+function renderContactos(contactos) {
+    listaContactos.innerHTML = "";
+    contador.textContent = contactos.length === 1 ? "1 contacto" : `${contactos.length} contactos`;
+
+    if (contactos.length === 0) {
+        listaContactos.innerHTML = '<div class="vacio">No se encontraron contactos.</div>';
+        return;
+    }
+
+    contactos.forEach((c) => {
+        const fila = document.createElement("div");
+        fila.className = "contacto";
+        fila.innerHTML = `
+            <div class="contacto-info">
+                <div class="contacto-nombre">${escapeHtml(c.nombre)}</div>
+                <div class="contacto-detalle">${escapeHtml(c.correo)} · ${escapeHtml(c.telefono)}</div>
+            </div>
+            <div class="contacto-acciones">
+                <button type="button" class="btn-editar" data-id="${c.id}">Editar</button>
+                <button type="button" class="btn-eliminar" data-id="${c.id}">Eliminar</button>
+            </div>
+        `;
+        listaContactos.appendChild(fila);
+    });
+
+    listaContactos.querySelectorAll(".btn-editar").forEach((btn) => {
+        btn.addEventListener("click", () => cargarContactoParaEditar(btn.dataset.id, contactos));
+    });
+    listaContactos.querySelectorAll(".btn-eliminar").forEach((btn) => {
+        btn.addEventListener("click", () => eliminarContacto(btn.dataset.id));
+    });
+}
+
+// ---------- Cargar / buscar contactos ----------
+async function cargarContactos(query = "") {
+    const url = query ? `${URLS.listar}?q=${encodeURIComponent(query)}` : URLS.listar;
+    const respuesta = await fetch(url);
+    const datos = await respuesta.json();
+    renderContactos(datos.contactos || []);
+}
+
+let temporizadorBusqueda = null;
+inputBuscar.addEventListener("input", () => {
+    clearTimeout(temporizadorBusqueda);
+    const valor = inputBuscar.value.trim();
+    // Pequeño debounce para no saturar de peticiones mientras se escribe.
+    temporizadorBusqueda = setTimeout(() => cargarContactos(valor), 150);
+});
+
+// ---------- Edición ----------
+function cargarContactoParaEditar(id, contactosActuales) {
+    const contacto = contactosActuales.find((c) => String(c.id) === String(id));
+    if (!contacto) return;
+
+    modoEdicion = true;
+    inputId.value = contacto.id;
+    inputNombre.value = contacto.nombre;
+    inputCorreo.value = contacto.correo;
+    inputTelefono.value = contacto.telefono;
+
+    btnGuardar.textContent = "Actualizar";
+    btnCancelar.style.display = "inline-block";
+    limpiarErrores();
+    inputNombre.focus();
+    form.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function salirModoEdicion() {
+    modoEdicion = false;
+    inputId.value = "";
+    form.reset();
+    btnGuardar.textContent = "Guardar";
+    btnCancelar.style.display = "none";
+    limpiarErrores();
+}
+
+btnCancelar.addEventListener("click", salirModoEdicion);
+
+// ---------- Eliminación ----------
+async function eliminarContacto(id) {
+    const confirmado = confirm("¿Está seguro de que desea eliminar este contacto?");
+    if (!confirmado) return;
+
+    const respuesta = await fetch(URLS.eliminar(id), {
+        method: "POST",
+        headers: { "X-CSRFToken": obtenerCsrfToken() },
+    });
+
+    if (respuesta.ok) {
+        if (String(inputId.value) === String(id)) {
+            salirModoEdicion();
+        }
+        cargarContactos(inputBuscar.value.trim());
+    } else {
+        mostrarAlertaGeneral("No se pudo eliminar el contacto. Intente nuevamente.");
+    }
+}
+
+// ---------- Validación / mensajes ----------
+function limpiarErrores() {
+    Object.values(erroresCampos).forEach((el) => (el.textContent = ""));
+    formAlert.style.display = "none";
+    formAlert.textContent = "";
+}
+
+function mostrarErroresServidor(errors) {
+    limpiarErrores();
+    Object.keys(errors).forEach((campo) => {
+        if (erroresCampos[campo]) {
+            erroresCampos[campo].textContent = errors[campo][0].message || errors[campo][0];
+        }
+    });
+}
+
+function mostrarAlertaGeneral(mensaje) {
+    formAlert.textContent = mensaje;
+    formAlert.style.display = "block";
+}
+
+function validarEnCliente() {
+    limpiarErrores();
+    let esValido = true;
+
+    const nombre = inputNombre.value.trim();
+    const correo = inputCorreo.value.trim();
+    const telefono = inputTelefono.value.trim();
+
+    if (!nombre) {
+        erroresCampos.nombre.textContent = "El nombre es obligatorio.";
+        esValido = false;
+    }
+
+    if (!correo) {
+        erroresCampos.correo.textContent = "El correo electrónico es obligatorio.";
+        esValido = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+        erroresCampos.correo.textContent = "Ingresa un correo electrónico con un formato válido.";
+        esValido = false;
+    }
+
+    if (!telefono) {
+        erroresCampos.telefono.textContent = "El teléfono es obligatorio.";
+        esValido = false;
+    } else if (!/^[0-9+\-\s()]+$/.test(telefono) || !/\d/.test(telefono)) {
+        erroresCampos.telefono.textContent = "El teléfono solo puede contener números.";
+        esValido = false;
+    }
+
+    return esValido;
+}
+
+// ---------- Envío del formulario (crear / actualizar) ----------
+form.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+
+    if (!validarEnCliente()) return;
+
+    const formData = new FormData();
+    formData.append("nombre", inputNombre.value.trim());
+    formData.append("correo", inputCorreo.value.trim());
+    formData.append("telefono", inputTelefono.value.trim());
+
+    const url = modoEdicion ? URLS.editar(inputId.value) : URLS.crear;
+
+    btnGuardar.disabled = true;
+    try {
+        const respuesta = await fetch(url, {
+            method: "POST",
+            headers: { "X-CSRFToken": obtenerCsrfToken() },
+            body: formData,
+        });
+        const datos = await respuesta.json();
+
+        if (datos.ok) {
+            salirModoEdicion();
+            cargarContactos(inputBuscar.value.trim());
+        } else {
+            mostrarErroresServidor(datos.errors || {});
+        }
+    } catch (error) {
+        mostrarAlertaGeneral("Ocurrió un error de conexión. Intente nuevamente.");
+    } finally {
+        btnGuardar.disabled = false;
+    }
+});
+
+// ---------- Carga inicial ----------
+cargarContactos();
+</script>
+</body>
+</html>
