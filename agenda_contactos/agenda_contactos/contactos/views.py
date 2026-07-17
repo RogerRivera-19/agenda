@@ -7,13 +7,13 @@ from .forms import ContactoForm
 
 
 def index(request):
-    """Renderiza la página principal (SPA simple: formulario + lista + buscador)."""
+
     return render(request, "contactos/index.html")
 
 
 @require_http_methods(["GET"])
 def contacto_list(request):
-    """Devuelve, en JSON, los contactos que coinciden con la búsqueda (?q=)."""
+    
     query = request.GET.get("q", "").strip()
     contactos = Contacto.objects.all()
     if query:
@@ -24,7 +24,7 @@ def contacto_list(request):
 
 @require_http_methods(["POST"])
 def contacto_create(request):
-    """Registra un nuevo contacto validando los datos enviados."""
+   
     form = ContactoForm(request.POST)
     if form.is_valid():
         contacto = form.save()
@@ -34,7 +34,7 @@ def contacto_create(request):
 
 @require_http_methods(["POST"])
 def contacto_update(request, pk):
-    """Actualiza un contacto existente (nunca crea uno nuevo)."""
+
     contacto = get_object_or_404(Contacto, pk=pk)
     form = ContactoForm(request.POST, instance=contacto)
     if form.is_valid():
@@ -45,7 +45,7 @@ def contacto_update(request, pk):
 
 @require_http_methods(["POST"])
 def contacto_delete(request, pk):
-    """Elimina un contacto de la agenda."""
+   
     contacto = get_object_or_404(Contacto, pk=pk)
     contacto.delete()
     return JsonResponse({"ok": True})
